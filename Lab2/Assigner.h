@@ -79,7 +79,7 @@ void Assigner::printArchivos(){
         cout << '\t';
         archivosReusados[i].print();
     }
-    cout << "-------------------------------------------" << endl;
+        cout << "-------------------------------------------" << endl;
 }
 
 void Assigner::replaceArchivo(Archivo curr){
@@ -130,8 +130,8 @@ void Assigner::writeFile(){
             myFile << "A=" << archivosNuevos[i].getAgregadas();
             myFile << endl;
     }
-    cout << "-------------------------------------------" << endl;
-    cout << "CLASES REUSADAS:" << endl;
+    myFile << "-------------------------------------------" << endl;
+    myFile << "CLASES REUSADAS:" << endl;
     for(int i =0 ; i < archivosReusados.size(); i++){
         myFile << '\t';
             archivosReusados[i].calculateAgregadas();

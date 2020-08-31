@@ -12,7 +12,6 @@ bool isComment(string currString, Archivo &myArch, bool &currComment){
     for(int i = currString.length()-1; i >= 0; i-- ){
         if(currString[i] == '*'){
             if(i+1 <= currString.length()-1 && currString[i+1] == '/'){
-                cout << "curr OFF " << endl;
                 currComment = 0;
                 return true;
             }
@@ -31,7 +30,6 @@ bool isComment(string currString, Archivo &myArch, bool &currComment){
             inString = 0;
         if(currString[i] == '.'){
             if(currString[i+1] == 'm' && !inString){
-                cout << "Modified" << " " << currString << endl;
                 myArch.addModified();
                 return false;
             }
@@ -46,20 +44,16 @@ void handleComment(string currString, Assigner myAssigner, Archivo &myArch){
     switch(currComment){
         case 'd':
             currNum = currString.substr(5,currString.length()-5);
-            cout << "Deleted" << " " << currString << endl;
             myArch.addDeleted(stoi(currNum));
             break;
         case 'b':
             currNum = currString.substr(5,currString.length()-5);
-            cout << "Base" << " " << currString << endl;
             myArch.addBase(stoi(currNum));
             break;
         case 'i':
-            cout << "Item" << " " << currString << endl;
             myArch.addItems();
             break;
         case 'm':
-            cout << "Modified" << " " << currString << endl;
             myArch.addModified();
             break;
     }
@@ -107,7 +101,6 @@ int main(){
                     }
                     else {
                         if(!multiLine){
-                            cout << "Linea #" << myArch.getLDC() << " " <<  currString << endl;
                             myArch.incrementarLineasCodigo();
                         }
                     }
@@ -116,7 +109,6 @@ int main(){
                 }
                 if(currString[i] == '{' || currString[i] == '}'){
                     if( !multiLine && (i+1 <= currString.length() && (currString[i+1] == ')' || currString[i+1] == '('))){
-                        cout << "Linea #" << myArch.getLDC() << " " <<  currString << endl;
                         myArch.incrementarLineasCodigo();
                     }
                 }
@@ -134,20 +126,18 @@ int main(){
             cin >> nombreArch;
             shortName = nombreArch.substr(0,nombreArch.length()-4);
             if(shortName != myArch.getName()){
-                cout << "CLEARED" << endl;
+                myAssigner.addArchivos(myArch);
+                globalLDC += myArch.getLDC();
                 myArch.clearAll();
                 rep = 0;
             } else
                 rep = 1;
-        }else
-            rep = 0;
-
-        if(!rep)
-            myAssigner.addArchivos(myArch);
+        }
         archEnt.close();
-        globalLDC += myArch.getLDC();
     }
-
+    myAssigner.addArchivos(myArch);
+    globalLDC += myArch.getLDC();
+    
     myAssigner.printArchivos();
     myAssigner.writeFile();
     cout << "Total de LDC=" << globalLDC << endl;
