@@ -22,6 +22,8 @@ class Archivo {
         void incrementarLineasCodigo();
         void print();
         void calculateAgregadas();
+        int getLDC();
+        void classify();
 
     private:
         char defineType();
@@ -34,6 +36,7 @@ class Archivo {
         int modified;
         int LDC;
         int agregadas;
+        char classification;
 };
 
 Archivo::Archivo(){
@@ -48,12 +51,14 @@ Archivo::Archivo(){
 
 void Archivo::print(){
     calculateAgregadas();
+    classify();
     cout << "T: " << LDC << endl;
     cout << "I: " << items << endl;
     cout << "B: " << base << endl;
     cout << "D: " << deleted << endl;
     cout << "M: " << modified << endl;
     cout << "A: " << agregadas << endl;
+    cout << "Clasificacion: " << classification << endl;
 }
 void Archivo::setName(string name) {
 	name = name;
@@ -114,10 +119,22 @@ void Archivo::incrementarLineasCodigo(){
     LDC++;
 }
 
+int Archivo:: getLDC(){
+    return LDC;
+}
 void Archivo::incrementarLineasBlanco(){
     return;
 }
 
 void Archivo::calculateAgregadas(){
     agregadas = LDC - base + deleted;
+}
+
+void Archivo::classify(){
+    if(base > 0 && ( modified > 0 || deleted > 0 || agregadas >0))
+        classification = 'b';
+    else if(base == 0 && modified == 0 && deleted == 0 & agregadas == 0)
+        classification = 'n';
+    else if(base > 0 && modified == 0 & deleted == 0 && agregadas ==0 )
+        classification = 'r';
 }

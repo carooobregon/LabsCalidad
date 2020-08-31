@@ -15,7 +15,6 @@ bool isComment(string currString, Archivo &myArch){
     for(int i = 0; i<currString.length(); i++){
         if(currString[i] == '.'){
             if(currString[i+1] == 'm'){
-                cout << currString << endl;
                 myArch.addModified();
                 return false;
             }
