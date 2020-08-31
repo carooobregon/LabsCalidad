@@ -5,20 +5,20 @@ using namespace std;
 class Archivo {
     public:
         Archivo();
-       void setName(string);
-       void setType(char);
-       char getType();
-       int getTotal();
-       int getItems();
-       int getBase();
-       int getDeleted();
-       int getModified();
-       void addTotal(int);
-       void addItems();
-       void addBase(int);
-       void addDeleted(int);
-       void addModified();
-       void incrementarLineasBlanco();
+        void setName(string);
+        void setType(char);
+        char getType();
+        int getTotal();
+        int getItems();
+        int getBase();
+        int getDeleted();
+        int getModified();
+        void addTotal(int);
+        void addItems();
+        void addBase(int);
+        void addDeleted(int);
+        void addModified();
+        void incrementarLineasBlanco();
         void incrementarLineasCodigo();
         void print();
         void calculateAgregadas();
@@ -26,6 +26,7 @@ class Archivo {
         char classify();
         string getName();
         int getAgregadas();
+        void clearAll();
 
     private:
         char defineType();
@@ -49,6 +50,19 @@ Archivo::Archivo(){
     modified = 0;
     LDC = 0;
     agregadas = 0;
+}
+
+void Archivo::clearAll(){
+    total = 0;
+    items = 0;
+    base = 0;
+    deleted = 0;
+    modified = 0;
+    LDC = 0;
+    agregadas = 0;
+    name = "";
+    type = 'D';
+    classification = 'D';
 }
 
 void Archivo::print(){
