@@ -4,10 +4,25 @@ using namespace std;
 
 class Archivo {
     public:
-       Archivo(string);
-       char defineType();
-       
+        Archivo();
+       void setName(string);
+       void setType(char);
+       char getType();
+       int getTotal();
+       int getItems();
+       int getBase();
+       int getDeleted();
+       int getModified();
+       void addTotal(int);
+       void addItems(int);
+       void addBase(int);
+       void addDeleted(int);
+       void addModified(int);
+       void incrementarLineasBlanco();
+        void incrementarLineasCodigo();
+
     private:
+        char defineType();
         string name;
         char type;
         int total;
@@ -15,57 +30,71 @@ class Archivo {
         int base;
         int deleted;
         int modified;
-
 };
 
+Archivo::Archivo(){
+    total = 0;
+    items = 0;
+    base = 0;
+    deleted = 0;
+    modified = 0;
+}
+
 void Archivo::setName(string name) {
-	this.name = name;
+	name = name;
 }
 
 char Archivo::getType() {
-	return this.type;
+	return type;
 }
 
 void Archivo::setType(char type) {
-	this.type = type;
+	type = type;
 }
 
 int Archivo::getTotal() {
-	return this.total;
+	return total;
 }
 
-void Archivo::setTotal(int total) {
-	this.total = total;
+void Archivo::addTotal(int total) {
+	total += total;
 }
 
 int Archivo::getItems() {
-	return this.items;
+	return items;
 }
 
-void Archivo::setItems(int items) {
-	this.items = items;
+void Archivo::addItems(int items) {
+	items += items;
 }
 
 int Archivo::getBase() {
-	return this.base;
+	return base;
 }
 
-void Archivo::setBase(int base) {
-	this.base = base;
+void Archivo::addBase(int b) {
+	base += b;
 }
 
 int Archivo::getDeleted() {
-	return this.deleted;
+	return deleted;
 }
 
-void Archivo::setDeleted(int deleted) {
-	this.deleted = deleted;
+void Archivo::addDeleted(int d) {
+	deleted = deleted + d;
 }
 
 int Archivo::getModified() {
-	return this.modified;
+	return modified;
 }
 
-void Archivo::setModified(int modified) {
-	this.modified = modified;
+void Archivo::addModified(int modified) {
+	modified += modified;
+}
+
+void Archivo::incrementarLineasCodigo(){
+    return;
+}
+void Archivo::incrementarLineasBlanco(){
+    return;
 }

@@ -1,8 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <string>
 
-#include "Archivo.h"
+#include "Assigner.h"
 
 using namespace std;
 
@@ -14,8 +15,20 @@ bool isComment(string currString){
     return false;
 }
 
+void handleComment(string currString, Assigner myAssigner, Archivo &myArch){
+    char currComment = myAssigner.defComment(currString);
+    if(currComment == 'd'){
+        string currNum = currString.substr(5,currString.length()-5);
+        myArch.addDeleted(stoi(currNum));
+    } else if(currComment == 'b'){
+        string currNum = currString.substr(5,currString.length()-5);
+        myArch.addBase(stoi(currNum));
+    }
+}
+
 int main(){
     Archivo myArch;
+    Assigner myAssigner;
     ifstream archEnt;
     string nombreArch, currString;
     int cont =0;
@@ -35,13 +48,16 @@ int main(){
         getline(archEnt, currString);
         for(int i = 0; i < currString.length(); i++){
             if(currString[i] == '/' || currString[i] == '*'){
-                myArch.incrementarLineasComentario();
+                currString = currString.substr(i,currString.length()-i);
+                handleComment(currString, myAssigner, myArch);
                 hasLineStarted = 1;
                 break;
             }
             if(isalpha(currString[i]) || currString[i] == '{' || currString[i] == '}'){
                 if(isComment(currString)){
-                    myArch.incrementarLineasComentario();
+                    currString = currString.substr(i,currString.length()-i);
+                    currString = currString.substr(i,currString.length()-i);
+                    handleComment(currString, myAssigner, myArch);
                 }
                 else {
                     myArch.incrementarLineasCodigo();
@@ -56,5 +72,8 @@ int main(){
         hasLineStarted = 0;
         cont++;
     }
+
+    cout << myArch.getBase() << endl;
+
     return 0;
 }
