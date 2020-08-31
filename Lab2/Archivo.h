@@ -14,12 +14,14 @@ class Archivo {
        int getDeleted();
        int getModified();
        void addTotal(int);
-       void addItems(int);
+       void addItems();
        void addBase(int);
        void addDeleted(int);
-       void addModified(int);
+       void addModified();
        void incrementarLineasBlanco();
         void incrementarLineasCodigo();
+        void print();
+        void calculateAgregadas();
 
     private:
         char defineType();
@@ -30,6 +32,8 @@ class Archivo {
         int base;
         int deleted;
         int modified;
+        int LDC;
+        int agregadas;
 };
 
 Archivo::Archivo(){
@@ -38,8 +42,19 @@ Archivo::Archivo(){
     base = 0;
     deleted = 0;
     modified = 0;
+    LDC = 0;
+    agregadas = 0;
 }
 
+void Archivo::print(){
+    calculateAgregadas();
+    cout << "T: " << LDC << endl;
+    cout << "I: " << items << endl;
+    cout << "B: " << base << endl;
+    cout << "D: " << deleted << endl;
+    cout << "M: " << modified << endl;
+    cout << "A: " << agregadas << endl;
+}
 void Archivo::setName(string name) {
 	name = name;
 }
@@ -48,24 +63,25 @@ char Archivo::getType() {
 	return type;
 }
 
-void Archivo::setType(char type) {
-	type = type;
+void Archivo::setType(char t) {
+	type = t;
 }
 
 int Archivo::getTotal() {
 	return total;
 }
 
-void Archivo::addTotal(int total) {
-	total += total;
+void Archivo::addTotal(int t) {
+	total += t;
+    
 }
 
 int Archivo::getItems() {
 	return items;
 }
 
-void Archivo::addItems(int items) {
-	items += items;
+void Archivo::addItems() {
+	items++;
 }
 
 int Archivo::getBase() {
@@ -74,6 +90,7 @@ int Archivo::getBase() {
 
 void Archivo::addBase(int b) {
 	base += b;
+    
 }
 
 int Archivo::getDeleted() {
@@ -82,19 +99,25 @@ int Archivo::getDeleted() {
 
 void Archivo::addDeleted(int d) {
 	deleted = deleted + d;
+    
 }
 
 int Archivo::getModified() {
 	return modified;
 }
 
-void Archivo::addModified(int modified) {
-	modified += modified;
+void Archivo::addModified() {
+	modified++;
 }
 
 void Archivo::incrementarLineasCodigo(){
-    return;
+    LDC++;
 }
+
 void Archivo::incrementarLineasBlanco(){
     return;
+}
+
+void Archivo::calculateAgregadas(){
+    agregadas = LDC - base + deleted;
 }

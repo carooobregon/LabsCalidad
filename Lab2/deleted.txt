@@ -1,1 +1,8 @@
-//.b=1000
+//.b=3
+//.i
+//.d=3
+linea;   //.m 
+codigo
+codigo
+codigo
+codigo

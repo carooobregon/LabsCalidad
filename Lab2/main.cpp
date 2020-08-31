@@ -7,22 +7,41 @@
 
 using namespace std;
 
-bool isComment(string currString){
+bool isComment(string currString, Archivo &myArch){
     for(int i = 0; i<currString.length(); i++){
         if(currString[i] == '*')
             return true;
+    }
+    for(int i = 0; i<currString.length(); i++){
+        if(currString[i] == '.'){
+            if(currString[i+1] == 'm'){
+                cout << currString << endl;
+                myArch.addModified();
+                return false;
+            }
+        }
     }
     return false;
 }
 
 void handleComment(string currString, Assigner myAssigner, Archivo &myArch){
     char currComment = myAssigner.defComment(currString);
-    if(currComment == 'd'){
-        string currNum = currString.substr(5,currString.length()-5);
-        myArch.addDeleted(stoi(currNum));
-    } else if(currComment == 'b'){
-        string currNum = currString.substr(5,currString.length()-5);
-        myArch.addBase(stoi(currNum));
+    string currNum;
+    switch(currComment){
+        case 'd':
+            currNum = currString.substr(5,currString.length()-5);
+            myArch.addDeleted(stoi(currNum));
+            break;
+        case 'b':
+            currNum = currString.substr(5,currString.length()-5);
+            myArch.addBase(stoi(currNum));
+            break;
+        case 'i':
+            myArch.addItems();
+            break;
+        case 'm':
+            myArch.addModified();
+            break;
     }
 }
 
@@ -53,8 +72,8 @@ int main(){
                 hasLineStarted = 1;
                 break;
             }
-            if(isalpha(currString[i]) || currString[i] == '{' || currString[i] == '}'){
-                if(isComment(currString)){
+            if(isalpha(currString[i]) || currString[i] == '{' || currString[i] == '}' || currString[i] == '+'){
+                if(isComment(currString, myArch)){
                     currString = currString.substr(i,currString.length()-i);
                     currString = currString.substr(i,currString.length()-i);
                     handleComment(currString, myAssigner, myArch);
@@ -73,7 +92,7 @@ int main(){
         cont++;
     }
 
-    cout << myArch.getBase() << endl;
+    myArch.print();
 
     return 0;
 }
