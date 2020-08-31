@@ -7,11 +7,22 @@
 
 using namespace std;
 
-bool isComment(string currString, Archivo &myArch){
-    for(int i = 0; i<currString.length(); i++){
-        if(currString[i] == '*')
-            return true;
+bool isComment(string currString, Archivo &myArch, bool &currComment){
+
+    for(int i = currString.length()-1; i >= 0; i-- ){
+        if(currString[i] == '*'){
+            if(i+1 <= currString.length()-1 && currString[i+1] == '/'){
+                cout << "curr OFF " << endl;
+                currComment = 0;
+                return true;
+            }
+            else{
+                currComment = 1;
+                return true;
+            }
+        }
     }
+
     bool inString = 0;
     for(int i = 0; i<currString.length(); i++){
         if(currString[i] == '"' && !inString)
@@ -59,6 +70,8 @@ int main(){
     Archivo myArch;
     ifstream archEnt;
     string nombreArch, currString;
+    bool multiLine = 0;
+    
     int cont =0;
     int handler = 1;
     int globalLDC = 0;
@@ -83,23 +96,26 @@ int main(){
                 if(currString[i] == '/' || currString[i] == '*'){
                     currString = currString.substr(i,currString.length()-i);
                     handleComment(currString, myAssigner, myArch);
+                    bool temp = isComment(currString, myArch, multiLine);
                     hasLineStarted = 1;
                     break;
                 }
                 if(isalpha(currString[i]) || currString[i] == '+'){
-                    if(isComment(currString, myArch)){
+                    if(isComment(currString, myArch, multiLine)){
                         currString = currString.substr(i,currString.length()-i);
                         handleComment(currString, myAssigner, myArch);
                     }
                     else {
-                        cout << "Linea #" << myArch.getLDC() << " " <<  currString << endl;
-                        myArch.incrementarLineasCodigo();
+                        if(!multiLine){
+                            cout << "Linea #" << myArch.getLDC() << " " <<  currString << endl;
+                            myArch.incrementarLineasCodigo();
+                        }
                     }
                     hasLineStarted = 1;
                     break;
                 }
                 if(currString[i] == '{' || currString[i] == '}'){
-                    if( i+1 <= currString.length() && (currString[i+1] == ')' || currString[i+1] == '(')){
+                    if( !multiLine && (i+1 <= currString.length() && (currString[i+1] == ')' || currString[i+1] == '('))){
                         cout << "Linea #" << myArch.getLDC() << " " <<  currString << endl;
                         myArch.incrementarLineasCodigo();
                     }
