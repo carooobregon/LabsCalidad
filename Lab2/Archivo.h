@@ -24,6 +24,8 @@ class Archivo {
         void calculateAgregadas();
         int getLDC();
         char classify();
+        string getName();
+        int getAgregadas();
 
     private:
         char defineType();
@@ -62,11 +64,15 @@ void Archivo::print(){
         cout << "M=" << modified <<", ";
     if(agregadas > 0)
     cout << "A=" << agregadas;
-    
+
     cout << endl;
 }
 void Archivo::setName(string n) {
 	name = n;
+}
+
+string Archivo::getName() {
+	return name;
 }
 
 char Archivo::getType() {
@@ -143,5 +149,9 @@ char Archivo::classify(){
     else if(base > 0 && modified == 0 & deleted == 0 && agregadas ==0 )
         return 'r';
         
-    return 'b';
+    return 'n';
+}
+
+int Archivo::getAgregadas(){
+    return agregadas;
 }

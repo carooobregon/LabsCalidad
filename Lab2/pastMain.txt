@@ -1,0 +1,163 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include "Printer.h"
+
+using namespace std;
+
+bool isComment(string currString){
+    for(int i = 0; i<currString.length(); i++){
+        if(currString[i] == '*')
+            return true;
+    }
+    return false;
+}
+
+int main(){
+    Archivo myArch;
+    ifstream archEnt;
+    string nombreArch, currString;
+    int cont =0;
+    cin >> nombreArch;
+    archEnt.open(nombreArch);
+
+    bool hasLineStarted = 0;
+
+    if(!archEnt.good()){
+        cout << "Archivo no existe" << endl;
+        return 0;
+    }
+
+    myArch.setNombre(nombreArch);
+    
+    while (!archEnt.eof()) {
+        getline(archEnt, currString);
+        for(int i = 0; i < currString.length(); i++){
+            if(currString[i] == '/' || currString[i] == '*'){
+                myArch.incrementarLineasComentario();
+                hasLineStarted = 1;
+                break;
+            }
+            if(isalpha(currString[i]) || currString[i] == '{' || currString[i] == '}'){
+                if(isComment(currString)){
+                    myArch.incrementarLineasComentario();
+                }
+                else {
+                    myArch.incrementarLineasCodigo();
+                }
+                hasLineStarted = 1;
+                break;
+            }
+        }
+        if(!hasLineStarted){
+            myArch.incrementarLineasBlanco();
+        }
+        hasLineStarted = 0;
+        cont++;
+    }
+    Printer myPrinter(myArch);
+    myPrinter.print();
+}
+
+#include <iostream>
+using namespace std;
+
+class Archivo {
+    public:
+        Archivo();
+        void setNombre(string);
+        string getNombre();
+        int getLineasComentario();
+        int getLineasCodigo();
+        int getLineasBlanco();
+        void incrementarLineasBlanco();
+        void incrementarLineasComentario();
+        void incrementarLineasCodigo();
+        void incrementarLineasComentarioMulti(int);
+        
+    private:
+        string nombre;
+        int lineasBlanco;
+        int lineasComentario;
+        int lineasCodigo;
+};
+
+Archivo::Archivo(){
+    lineasBlanco = 0;
+    lineasComentario = 0;
+    lineasCodigo = 0;
+}
+
+void Archivo::setNombre(string nom){
+    nombre = nom;
+}
+
+string Archivo::getNombre(){
+    return nombre;
+}
+
+int Archivo::getLineasComentario(){
+    return lineasComentario;
+}
+
+int Archivo::getLineasCodigo(){
+    return lineasCodigo;
+}
+
+int Archivo::getLineasBlanco(){
+    return lineasBlanco;
+}
+
+void Archivo::incrementarLineasBlanco(){
+    lineasBlanco++;
+}
+
+void Archivo::incrementarLineasComentario(){
+    lineasComentario++;
+}
+
+void Archivo::incrementarLineasCodigo(){
+    lineasCodigo++;
+}
+
+void Archivo::incrementarLineasComentarioMulti(int num){
+    lineasComentario += num;
+}
+
+#include <iostream>
+#include "Archivo.h"
+
+using namespace std;
+
+class Printer {
+    public:
+        Printer(Archivo);
+        void print();
+    
+    private:
+        Archivo myArch;
+        void printLines();
+        int calcTotal();
+};
+
+Printer::Printer(Archivo arch){
+    myArch = arch;
+}
+
+void Printer::print(){
+    cout << "Nombre del archivo: " << myArch.getNombre() << endl;
+    printLines();
+    cout << "Cantidad de lineas en blanco: " << myArch.getLineasBlanco() << endl;
+    cout << "Cantidad de lineas con comentarios: " << myArch.getLineasComentario() << endl;
+    cout << "Cantidad de lineas con codigo: " << myArch.getLineasCodigo() << endl;
+    printLines();
+    cout << "Cantidad total de lineas: " << calcTotal() << endl;
+}
+
+void Printer::printLines(){
+   cout << "--------------------------------------------" << endl;
+}
+
+int Printer::calcTotal(){
+    return myArch.getLineasBlanco() + myArch.getLineasComentario() + myArch.getLineasCodigo();
+}

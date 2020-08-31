@@ -1,0 +1,470 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+
+#include "Assigner.h"
+
+using namespace std;
+
+bool isComment(string currString, Archivo &myArch){
+    for(int i = 0; i<currString.length(); i++){
+        if(currString[i] == '*')
+            return true;
+    }
+    bool inString = 0;
+    for(int i = 0; i<currString.length(); i++){
+        if(currString[i] == '"' && !inString)
+            inString =1;
+        else if(currString[i] == '"' && inString)
+            inString = 0;
+        if(currString[i] == '.'){
+            if(currString[i+1] == 'm' && !inString){
+                myArch.addModified();
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
+void handleComment(string currString, Assigner myAssigner, Archivo &myArch){
+    char currComment = myAssigner.defComment(currString);
+    string currNum;
+    switch(currComment){
+        case 'd':
+            currNum = currString.substr(5,currString.length()-5);
+            myArch.addDeleted(stoi(currNum));
+            break;
+        case 'b':
+            currNum = currString.substr(5,currString.length()-5);
+            myArch.addBase(stoi(currNum));
+            break;
+        case 'i':
+            myArch.addItems();
+            break;
+        case 'm':
+            myArch.addModified();
+            break;
+    }
+}
+
+void handleFile(Archivo &myArch, string nombreArch, Assigner &myAssigner){
+        ifstream archEnt;
+        string currString;
+        int cont;
+        archEnt.open(nombreArch);
+
+        bool hasLineStarted = 0;
+
+        cout << "iN";
+        while (!archEnt.eof()) {
+            getline(archEnt, currString);
+            for(int i = 0; i < currString.length(); i++){
+                if(currString[i] == '/' || currString[i] == '*'){
+                    currString = currString.substr(i,currString.length()-i);
+                    handleComment(currString, myAssigner, myArch);
+                    hasLineStarted = 1;
+                    break;
+                }
+                if(isalpha(currString[i]) || currString[i] == '{' || currString[i] == '}' || currString[i] == '+'){
+                    if(isComment(currString, myArch)){
+                        currString = currString.substr(i,currString.length()-i);
+                        handleComment(currString, myAssigner, myArch);
+                    }
+                    else {
+                        myArch.incrementarLineasCodigo();
+                    }
+                    hasLineStarted = 1;
+                    break;
+                }
+            }
+            if(!hasLineStarted){
+                myArch.incrementarLineasBlanco();
+            }
+            hasLineStarted = 0;
+            cont++;
+        }
+}
+
+
+int main(){
+    Assigner myAssigner;
+    ifstream archEnt;
+    string nombreArch, currString;
+    int cont =0;
+    int handler = 1;
+    int globalLDC = 0;
+    
+    cin >> nombreArch;
+    
+    while(handler == 1){
+        Archivo myArch;
+        archEnt.open(nombreArch);
+        string shortName = nombreArch.substr(0,nombreArch.length()-4);
+        myArch.setName(shortName);
+        
+        bool hasLineStarted = 0;
+
+        if(!archEnt.good()){
+            cout << "Archivo no existe" << endl;
+            return 0;
+        }
+        
+        while (!archEnt.eof()) {
+            getline(archEnt, currString);
+            for(int i = 0; i < currString.length(); i++){
+                if(currString[i] == '/' || currString[i] == '*'){
+                    currString = currString.substr(i,currString.length()-i);
+                    handleComment(currString, myAssigner, myArch);
+                    hasLineStarted = 1;
+                    break;
+                }
+                if(isalpha(currString[i]) || currString[i] == '{' || currString[i] == '}' || currString[i] == '+'){
+                    if(isComment(currString, myArch)){
+                        currString = currString.substr(i,currString.length()-i);
+                        handleComment(currString, myAssigner, myArch);
+                    }
+                    else {
+                        myArch.incrementarLineasCodigo();
+                    }
+                    hasLineStarted = 1;
+                    break;
+                }
+            }
+            if(!hasLineStarted){
+                myArch.incrementarLineasBlanco();
+            }
+            hasLineStarted = 0;
+            cont++;
+        }
+        cout << "Presiona 1 para agregar otro archivo" << endl;
+        cin >> handler;
+        archEnt.close();
+        if(handler == 1){
+            cout << "Teclee nombre de archivo" << endl;
+            cin >> nombreArch;
+            string shortName = nombreArch.substr(0,nombreArch.length()-4);
+            if(shortName == myArch.getName()){
+                handleFile(myArch, nombreArch, myAssigner);
+                cout << "Presiona 1 para agregar otro archivo" << endl;
+                cin >> handler;
+            }
+        }
+        myAssigner.addArchivos(myArch);
+
+        globalLDC += myArch.getLDC();
+    }
+    myAssigner.printArchivos();
+    myAssigner.writeFile();
+    cout << "Total de LDC=" << globalLDC << endl;
+    return 0;
+}
+
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include "Archivo.h"
+
+using namespace std;
+
+class Assigner {
+    public:
+        int defLOC();
+        char defComment(string);
+        int defNumberInComment();
+        Archivo getArchivo();
+        void handleComment(string);
+        void addArchivos(Archivo);
+        void printArchivos();
+        void replaceArchivo(Archivo);
+        void writeFile();
+
+    private:
+        vector<Archivo> archivosBase;
+        vector<Archivo> archivosNuevos;
+        vector<Archivo> archivosReusados;
+};
+
+char Assigner::defComment(string comment){
+    if(comment.length() < 2 || comment[2] != '.')
+        return 'c';
+
+    switch(comment[3]){
+        case 'i':
+            return 'i';
+            break;
+        case 'b':
+            return 'b';
+            break;
+        case 'd':
+            return 'd';
+        case 'm':
+            return 'm';
+    }
+
+    return 'c';
+}
+
+void Assigner::addArchivos(Archivo curr){
+    curr.calculateAgregadas();
+    switch(curr.classify()){
+        case 'b':
+            archivosBase.push_back(curr);
+            break;
+        
+        case 'n':
+            archivosNuevos.push_back(curr);
+            break;
+        
+        case 'r':
+            archivosReusados.push_back(curr);
+            break;
+        
+    }
+}
+
+void Assigner::printArchivos(){
+    cout << "CLASES BASE:" << endl;
+    for(int i =0 ; i < archivosBase.size(); i++){
+        cout << '\t';
+        archivosBase[i].print();
+    }
+    cout << "-------------------------------------------" << endl;
+    cout << "CLASES NUEVAS:" << endl;
+    for(int i =0 ; i < archivosNuevos.size(); i++){
+        cout << '\t';
+        archivosNuevos[i].print();
+    }
+    cout << "-------------------------------------------" << endl;
+    cout << "CLASES REUSADAS:" << endl;
+    for(int i =0 ; i < archivosReusados.size(); i++){
+        cout << '\t';
+        archivosReusados[i].print();
+    }
+    cout << "-------------------------------------------" << endl;
+}
+
+void Assigner::replaceArchivo(Archivo curr){
+    curr.calculateAgregadas();
+    switch(curr.classify()){
+        case 'b':
+            archivosReusados.pop_back();
+            break;
+        case 'n':
+            archivosNuevos.pop_back();
+            break;
+        case 'r':
+            archivosReusados.pop_back();
+            break;
+    }
+    addArchivos(curr);
+}
+
+void Assigner::writeFile(){
+    ofstream myFile ("example.txt");
+        myFile << "CLASES BASE:" << endl;
+    for(int i =0 ; i < archivosBase.size(); i++){
+        myFile << '\t';
+            archivosBase[i].calculateAgregadas();
+            archivosBase[i].classify();
+            myFile << archivosBase[i].getName() << ": ";
+            myFile << "T=" << archivosBase[i].getLDC() << ", ";
+            myFile << "I=" << archivosBase[i].getItems() << ", ";
+            myFile << "B=" << archivosBase[i].getBase() <<", ";
+            myFile << "D=" << archivosBase[i].getDeleted() << ", ";
+                myFile << "M=" << archivosBase[i].getModified() <<", ";
+            myFile << "A=" << archivosBase[i].getAgregadas();
+            myFile << endl;
+
+    }
+    myFile << "-------------------------------------------" << endl;
+    myFile << "CLASES NUEVAS:" << endl;
+    for(int i =0 ; i < archivosNuevos.size(); i++){
+        myFile << '\t';
+            archivosNuevos[i].calculateAgregadas();
+            archivosNuevos[i].classify();
+            myFile << archivosNuevos[i].getName() << ": ";
+            myFile << "T=" << archivosNuevos[i].getLDC() << ", ";
+            myFile << "I=" << archivosNuevos[i].getItems() << ", ";
+            myFile << "B=" << archivosNuevos[i].getBase() <<", ";
+                myFile << "D=" << archivosNuevos[i].getDeleted() << ", ";
+                myFile << "M=" << archivosNuevos[i].getModified() <<", ";
+            myFile << "A=" << archivosNuevos[i].getAgregadas();
+            myFile << endl;
+    }
+    cout << "-------------------------------------------" << endl;
+    cout << "CLASES REUSADAS:" << endl;
+    for(int i =0 ; i < archivosReusados.size(); i++){
+        myFile << '\t';
+            archivosReusados[i].calculateAgregadas();
+            archivosReusados[i].classify();
+            myFile << archivosReusados[i].getName() << ": ";
+            myFile << "T=" << archivosReusados[i].getLDC() << ", ";
+            myFile << "I=" << archivosReusados[i].getItems() << ", ";
+            myFile << "B=" << archivosReusados[i].getBase() <<", ";
+                myFile << "D=" << archivosReusados[i].getDeleted() << ", ";
+                myFile << "M=" << archivosReusados[i].getModified() <<", ";
+            myFile << "A=" << archivosReusados[i].getAgregadas();
+            myFile << endl;
+    }
+    myFile << "-------------------------------------------" << endl;
+
+}
+#include <iostream>
+
+using namespace std;
+
+class Archivo {
+    public:
+        Archivo();
+       void setName(string);
+       void setType(char);
+       char getType();
+       int getTotal();
+       int getItems();
+       int getBase();
+       int getDeleted();
+       int getModified();
+       void addTotal(int);
+       void addItems();
+       void addBase(int);
+       void addDeleted(int);
+       void addModified();
+       void incrementarLineasBlanco();
+        void incrementarLineasCodigo();
+        void print();
+        void calculateAgregadas();
+        int getLDC();
+        char classify();
+        string getName();
+        int getAgregadas();
+
+    private:
+        char defineType();
+        string name;
+        char type;
+        int total;
+        int items;
+        int base;
+        int deleted;
+        int modified;
+        int LDC;
+        int agregadas;
+        char classification;
+};
+
+Archivo::Archivo(){
+    total = 0;
+    items = 0;
+    base = 0;
+    deleted = 0;
+    modified = 0;
+    LDC = 0;
+    agregadas = 0;
+}
+
+void Archivo::print(){
+    calculateAgregadas();
+    classify();
+    cout << name << ": ";
+    cout << "T=" << LDC << ", ";
+    cout << "I=" << items << ", ";
+    cout << "B=" << base <<", ";
+    if(deleted > 0)
+        cout << "D=" << deleted << ", ";
+    if(modified > 0)
+        cout << "M=" << modified <<", ";
+    if(agregadas > 0)
+    cout << "A=" << agregadas;
+
+    cout << endl;
+}
+void Archivo::setName(string n) {
+	name = n;
+}
+
+string Archivo::getName() {
+	return name;
+}
+
+char Archivo::getType() {
+	return type;
+}
+
+void Archivo::setType(char t) {
+	type = t;
+}
+
+int Archivo::getTotal() {
+	return total;
+}
+
+void Archivo::addTotal(int t) {
+	total += t;
+    
+}
+
+int Archivo::getItems() {
+	return items;
+}
+
+void Archivo::addItems() {
+	items++;
+}
+
+int Archivo::getBase() {
+	return base;
+}
+
+void Archivo::addBase(int b) {
+	base += b;
+    
+}
+
+int Archivo::getDeleted() {
+	return deleted;
+}
+
+void Archivo::addDeleted(int d) {
+	deleted = deleted + d;
+    
+}
+
+int Archivo::getModified() {
+	return modified;
+}
+
+void Archivo::addModified() {
+	modified++;
+}
+
+void Archivo::incrementarLineasCodigo(){
+    LDC++;
+}
+
+int Archivo:: getLDC(){
+    return LDC;
+}
+void Archivo::incrementarLineasBlanco(){
+    return;
+}
+
+void Archivo::calculateAgregadas(){
+    agregadas = LDC - base + deleted;
+}
+
+char Archivo::classify(){
+    if(base > 0 && ( modified > 0 || deleted > 0 || agregadas >0))
+        return 'b';
+    else if(base == 0 && modified == 0 && deleted == 0 & agregadas == 0)
+        return 'n';
+    else if(base > 0 && modified == 0 & deleted == 0 && agregadas ==0 )
+        return 'r';
+        
+    return 'n';
+}
+
+int Archivo::getAgregadas(){
+    return agregadas;
+}
