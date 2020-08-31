@@ -45,53 +45,63 @@ void handleComment(string currString, Assigner myAssigner, Archivo &myArch){
 }
 
 int main(){
-    Archivo myArch;
     Assigner myAssigner;
     ifstream archEnt;
     string nombreArch, currString;
     int cont =0;
-    cin >> nombreArch;
-    archEnt.open(nombreArch);
+    int handler = 1;
+    int globalLDC = 0;
 
-    bool hasLineStarted = 0;
+    while(handler == 1){
+        Archivo myArch;
+        cin >> nombreArch;
+        cout << nombreArch << endl;
+        archEnt.open(nombreArch);
+        string shortName = nombreArch.substr(0,nombreArch.length()-4);
+        myArch.setName(shortName);
+        
+        bool hasLineStarted = 0;
 
-    if(!archEnt.good()){
-        cout << "Archivo no existe" << endl;
-        return 0;
-    }
-
-    myArch.setName(nombreArch);
-    
-    while (!archEnt.eof()) {
-        getline(archEnt, currString);
-        for(int i = 0; i < currString.length(); i++){
-            if(currString[i] == '/' || currString[i] == '*'){
-                currString = currString.substr(i,currString.length()-i);
-                handleComment(currString, myAssigner, myArch);
-                hasLineStarted = 1;
-                break;
-            }
-            if(isalpha(currString[i]) || currString[i] == '{' || currString[i] == '}' || currString[i] == '+'){
-                if(isComment(currString, myArch)){
-                    currString = currString.substr(i,currString.length()-i);
+        if(!archEnt.good()){
+            cout << "Archivo no existe" << endl;
+            return 0;
+        }
+        
+        while (!archEnt.eof()) {
+            getline(archEnt, currString);
+            for(int i = 0; i < currString.length(); i++){
+                if(currString[i] == '/' || currString[i] == '*'){
                     currString = currString.substr(i,currString.length()-i);
                     handleComment(currString, myAssigner, myArch);
+                    hasLineStarted = 1;
+                    break;
                 }
-                else {
-                    myArch.incrementarLineasCodigo();
+                if(isalpha(currString[i]) || currString[i] == '{' || currString[i] == '}' || currString[i] == '+'){
+                    if(isComment(currString, myArch)){
+                        currString = currString.substr(i,currString.length()-i);
+                        currString = currString.substr(i,currString.length()-i);
+                        handleComment(currString, myAssigner, myArch);
+                    }
+                    else {
+                        myArch.incrementarLineasCodigo();
+                    }
+                    hasLineStarted = 1;
+                    break;
                 }
-                hasLineStarted = 1;
-                break;
             }
+            if(!hasLineStarted){
+                myArch.incrementarLineasBlanco();
+            }
+            hasLineStarted = 0;
+            cont++;
         }
-        if(!hasLineStarted){
-            myArch.incrementarLineasBlanco();
-        }
-        hasLineStarted = 0;
-        cont++;
+        myAssigner.addArchivos(myArch);
+        cout << "Presiona 1 para agregar otro archivo" << endl;
+        cin >> handler;
+        archEnt.close();
+        globalLDC += myArch.getLDC();
     }
-
-    myArch.print();
-
+    myAssigner.printArchivos();
+    cout << "Total de LDC=" << globalLDC << endl;
     return 0;
 }

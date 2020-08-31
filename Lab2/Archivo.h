@@ -23,7 +23,7 @@ class Archivo {
         void print();
         void calculateAgregadas();
         int getLDC();
-        void classify();
+        char classify();
 
     private:
         char defineType();
@@ -52,16 +52,21 @@ Archivo::Archivo(){
 void Archivo::print(){
     calculateAgregadas();
     classify();
-    cout << "T: " << LDC << endl;
-    cout << "I: " << items << endl;
-    cout << "B: " << base << endl;
-    cout << "D: " << deleted << endl;
-    cout << "M: " << modified << endl;
-    cout << "A: " << agregadas << endl;
-    cout << "Clasificacion: " << classification << endl;
+    cout << name << ": ";
+    cout << "T=" << LDC << ", ";
+    cout << "I=" << items << ", ";
+    cout << "B=" << base <<", ";
+    if(deleted > 0)
+        cout << "D=" << deleted << ", ";
+    if(modified > 0)
+        cout << "M=" << modified <<", ";
+    if(agregadas > 0)
+    cout << "A=" << agregadas;
+    
+    cout << endl;
 }
-void Archivo::setName(string name) {
-	name = name;
+void Archivo::setName(string n) {
+	name = n;
 }
 
 char Archivo::getType() {
@@ -130,11 +135,13 @@ void Archivo::calculateAgregadas(){
     agregadas = LDC - base + deleted;
 }
 
-void Archivo::classify(){
+char Archivo::classify(){
     if(base > 0 && ( modified > 0 || deleted > 0 || agregadas >0))
-        classification = 'b';
+        return 'b';
     else if(base == 0 && modified == 0 && deleted == 0 & agregadas == 0)
-        classification = 'n';
+        return 'n';
     else if(base > 0 && modified == 0 & deleted == 0 && agregadas ==0 )
-        classification = 'r';
+        return 'r';
+        
+    return 'b';
 }
