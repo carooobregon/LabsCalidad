@@ -1,6 +1,7 @@
 #include <iostream>
 
 using namespace std;
+//.b=41
 
 class Archivo {
     public:
@@ -51,7 +52,7 @@ Archivo::Archivo(){
     LDC = 0;
     agregadas = 0;
 }
-
+//.i
 void Archivo::clearAll(){
     total = 0;
     items = 0;
@@ -64,7 +65,7 @@ void Archivo::clearAll(){
     type = 'D';
     classification = 'D';
 }
-
+//.i
 void Archivo::print(){
     calculateAgregadas();
     classify();
@@ -81,6 +82,7 @@ void Archivo::print(){
 
     cout << endl;
 }
+//.d=8
 void Archivo::setName(string n) {
 	name = n;
 }
@@ -139,7 +141,7 @@ int Archivo::getModified() {
 void Archivo::addModified() {
 	modified++;
 }
-
+//.i
 void Archivo::incrementarLineasCodigo(){
     LDC++;
 }
@@ -150,11 +152,11 @@ int Archivo:: getLDC(){
 void Archivo::incrementarLineasBlanco(){
     return;
 }
-
+//.i
 void Archivo::calculateAgregadas(){
     agregadas = LDC - base + deleted;
 }
-
+//.i
 char Archivo::classify(){
     if(base > 0 && ( modified > 0 || deleted > 0 || agregadas >0))
         return 'b';

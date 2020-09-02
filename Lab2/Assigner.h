@@ -22,7 +22,7 @@ class Assigner {
         vector<Archivo> archivosNuevos;
         vector<Archivo> archivosReusados;
 };
-
+//.i
 char Assigner::defComment(string comment){
     if(comment.length() < 2 || comment[2] != '.')
         return 'c';
@@ -42,7 +42,7 @@ char Assigner::defComment(string comment){
 
     return 'c';
 }
-
+//.i
 void Assigner::addArchivos(Archivo curr){
     curr.calculateAgregadas();
     switch(curr.classify()){
@@ -60,7 +60,7 @@ void Assigner::addArchivos(Archivo curr){
         
     }
 }
-
+//.i
 void Assigner::printArchivos(){
     cout << "CLASES BASE:" << endl;
     for(int i =0 ; i < archivosBase.size(); i++){
@@ -81,7 +81,7 @@ void Assigner::printArchivos(){
     }
         cout << "-------------------------------------------" << endl;
 }
-
+//.i
 void Assigner::replaceArchivo(Archivo curr){
     curr.calculateAgregadas();
     switch(curr.classify()){
@@ -97,7 +97,7 @@ void Assigner::replaceArchivo(Archivo curr){
     }
     addArchivos(curr);
 }
-
+//.i
 void Assigner::writeFile(){
     ofstream myFile ("example.txt");
         myFile << "CLASES BASE:" << endl;

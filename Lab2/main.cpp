@@ -6,11 +6,16 @@
 #include "Assigner.h"
 
 using namespace std;
+//.b=42
 
 bool isComment(string currString, Archivo &myArch, bool &currComment){
 
     for(int i = currString.length()-1; i >= 0; i-- ){
         if(currString[i] == '*'){
+            if(i+1 <= currString.length()-1 && currString[i+1] == '\'' ){//.m
+                currComment = 0;
+                return false;
+            }
             if(i+1 <= currString.length()-1 && currString[i+1] == '/'){
                 currComment = 0;
                 return true;
@@ -74,7 +79,8 @@ int main(){
     
     while(handler == 1){
         archEnt.open(nombreArch);
-        string shortName = nombreArch.substr(0,nombreArch.length()-4);
+        size_t found = nombreArch.find('.');
+        string shortName = nombreArch.substr(0,found);
         myArch.setName(shortName);
         
         bool hasLineStarted = 0;
@@ -89,7 +95,7 @@ int main(){
             for(int i = 0; i < currString.length(); i++){
                 if(currString[i] == '/' || currString[i] == '*'){
                     currString = currString.substr(i,currString.length()-i);
-                    handleComment(currString, myAssigner, myArch);
+                    handleComment(currString, myAssigner, myArch); //.m
                     bool temp = isComment(currString, myArch, multiLine);
                     hasLineStarted = 1;
                     break;
@@ -97,11 +103,11 @@ int main(){
                 if(isalpha(currString[i]) || currString[i] == '+'){
                     if(isComment(currString, myArch, multiLine)){
                         currString = currString.substr(i,currString.length()-i);
-                        handleComment(currString, myAssigner, myArch);
+                        handleComment(currString, myAssigner, myArch); //.m
                     }
                     else {
                         if(!multiLine){
-                            myArch.incrementarLineasCodigo();
+                            myArch.incrementarLineasCodigo(); //.m
                         }
                     }
                     hasLineStarted = 1;
@@ -109,13 +115,13 @@ int main(){
                 }
                 if(currString[i] == '{' || currString[i] == '}'){
                     if( !multiLine && (i+1 <= currString.length() && (currString[i+1] == ')' || currString[i+1] == '('))){
-                        myArch.incrementarLineasCodigo();
+                        myArch.incrementarLineasCodigo(); //.m
                     }
                 }
 
             }
             if(!hasLineStarted){
-                myArch.incrementarLineasBlanco();
+                myArch.incrementarLineasBlanco(); //.m
             }
             hasLineStarted = 0;
             cont++;
@@ -139,7 +145,7 @@ int main(){
     globalLDC += myArch.getLDC();
     
     myAssigner.printArchivos();
-    myAssigner.writeFile();
+    myAssigner.writeFile(); //.m
     cout << "Total de LDC=" << globalLDC << endl;
     return 0;
 }
